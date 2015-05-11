@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Iron Tracker</title>
+	<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.2/JSXTransformer.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="bower_components/normalize.css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<section id="mount-point"></section>
+	<section id="mount-point2"></section>
+	<script type="text/jsx">
+
+	/** @jsx React.DOM */
+	var ref = new Firebase('https://blistering-torch-743.firebaseio.com/');
+
+	var NavComponent = React.createClass({ 
+		getInitialState: function() {
+        	return { showResults: false };
+    	},
+		onClick: function() {
+        	this.setState({ showResults: !this.state.showResults });
+   	 	},	
+		render: function() {
+			return (
+				<header>
+					<h1> Iron Tracker </h1>
+					<h2> Tracking Iron Yarders Quest For Jobs </h2>
+					<nav>
+						<a href="#"> Home </a>
+						<a href="#"> Job Search Stats </a>
+						<a className="submit-button" href="#" onClick={this.onClick}> Submit Information </a>
+					</nav>
+					{ this.state.showResults ? <PostComponent /> : null }
+				</header>
+			)
+		}
+	});
+
+	var PostComponent = React.createClass({
+		handleSubmit: function(e) {
+
+			e.preventDefault();
+
+			var travisczerw = {};
+			var user = {};
+
+			travisczerw.applications = React.findDOMNode(this.refs.application).value;
+			travisczerw.referrals = React.findDOMNode(this.refs.referrals).value;
+			travisczerw.interviews = React.findDOMNode(this.refs.interviews).value;
+			travisczerw.technicalInterviews = React.findDOMNode(this.refs.techInterviews).value;
+
+			user;
+
+			console.log(travisczerw);
+
+			var usersRef = ref.child("profiles");
+			user[React.findDOMNode(this.refs.username).value] = travisczerw;
+			usersRef.push(user);
+
+		    // React.findDOMNode(this.refs.location).value = '';
+		    // React.findDOMNode(this.refs.link).value = '';
+
+			return;	
+		},
+		render: function() {
+			return (
+				
+				<div className ="submit-bar">
+					<form onSubmit={this.handleSubmit}>
+						<label> 
+							Name 
+							<input type="text" ref="username" />
+						</label>
+						<br></br>
+						<label> 
+							Applications
+							<input type="text" ref="application" />
+						</label>
+						<br></br>
+						<label>
+							Referrals/Contacts
+							<input type="text" ref="referrals" />
+						</label>
+						<br></br>
+						<label>
+							Interviews
+							<input type="text" ref="interviews" />
+						</label>
+						<br></br>
+						<label>
+							Technical Interviews/Assignments
+							<input type="text" ref="techInterviews" />
+						</label>
+						<br></br>
+						<input className ="button" type="submit" value="Submit" />
+					</form>
+				</div>
+			)
+		}
+	});
+
+	var ProfileComponent = React.createClass({
+		getInitialState: function() {
+   			return {profiles: []};
+  		},
+		componentWillMount: function() {
+			this.firebaseRef = new Firebase("https://blistering-torch-743.firebaseio.com/profiles");
+			this.firebaseRef.on("child_added", function(snapshot) {
+			var profiles = (snapshot.val());
+			console.log(profiles);
+			this.setState({
+				profiles: this.profiles
+			});
+			}.bind(this));
+		},
+		componentWillUnmount: function() {
+  			this.firebaseRef.off();
+		},
+		render: function() {
+			return (
+				<section className="iron-yarder-profile">
+					<div className="profile-image"> </div>
+				</section>
+			)
+		}
+	});
+
+
+	React.render(
+	    <NavComponent />,
+	    document.getElementById('mount-point')
+	);
+
+	React.render(
+	    <ProfileComponent />,
+	    document.getElementById('mount-point2')
+	);
+
+	</script>
+	<script src="main.js"></script>
+</body>
+</html>
