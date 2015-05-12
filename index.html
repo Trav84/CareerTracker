@@ -43,10 +43,7 @@
 
 	var PostComponent = React.createClass({
 		handleSubmit: function(e) {
-
 			e.preventDefault();
-
-			//var travisczerw = {};
 			var user = {};
 
 			user.username = React.findDOMNode(this.refs.username).value;
@@ -57,7 +54,6 @@
 			user.status = React.findDOMNode(this.refs.status).value;
 
 			var usersRef = ref.child("profiles/"+user.username);
-			//user[React.findDOMNode(this.refs.username).value] = travisczerw;
 			usersRef.update(user);
 
 			return;	
@@ -69,34 +65,34 @@
 					<form onSubmit={this.handleSubmit}>
 						<label> 
 							Name 
-							<input type="text" ref="username" />
+							<input type="text" placeholder="Sally Sue" ref="username" />
 						</label>
-						<br></br>
+						
 						<label> 
 							Applications
-							<input type="text" ref="application" />
+							<input type="text" placeholder="10" ref="application" />
 						</label>
-						<br></br>
+						
 						<label>
 							Referrals/Contacts
-							<input type="text" ref="referrals" />
+							<input type="text" placeholder="3" ref="referrals" />
 						</label>
-						<br></br>
+						
 						<label>
 							Interviews
-							<input type="text" ref="interviews" />
+							<input type="text" placeholder="5" ref="interviews" />
 						</label>
-						<br></br>
+						
 						<label>
 							Technical Interviews/Assignments
-							<input type="text" ref="techInterviews" />
+							<input type="text" placeholder="2" ref="techInterviews" />
 						</label>
-						<br></br>
+						
 						<label>
 							Employement Status
-							<input type="text" ref="status" />
+							<input type="text" placeholder="Hired/Looking/Other" ref="status" />
 						</label>
-						<br></br>
+						
 						<input className ="button" type="submit" value="Submit" />
 					</form>
 				</div>
@@ -150,7 +146,16 @@
   		},
 		componentWillMount: function() {
 			this.firebaseRef = new Firebase("https://blistering-torch-743.firebaseio.com/profiles");
+			this.changeRef = new Firebase("https://blistering-torch-743.firebaseio.com");
+			// this.firebaseRef.on("child_changed", function(snapshot) {
+			// 	console.log('changed event occured');
+			// 	this.profiles.push(snapshot.val())
+			// 	this.setState({
+			// 		profiles: this.profiles
+			// 	});
+			//}.bind(this));
 			this.firebaseRef.on("value", function(snapshot) {
+				console.log('grabbed Firebase values');
 				this.profiles.push(snapshot.val())
 				this.setState({
 					profiles: this.profiles
@@ -161,11 +166,8 @@
   			this.firebaseRef.off();
 		},
 		render: function() {
-			console.log(this.profiles);
 			var profiles = [];
 			for(var i in this.profiles[0]) {
-				console.log(i);
-				console.log(this.profiles[0][i]);
 				profiles.push(this.profiles[0][i]);
 			}
 			return (
@@ -173,7 +175,6 @@
 			)
 		}
 	});
-
 
 	React.render(
 	    <NavComponent />,
