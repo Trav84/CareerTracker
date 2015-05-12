@@ -46,24 +46,19 @@
 
 			e.preventDefault();
 
-			var travisczerw = {};
+			//var travisczerw = {};
 			var user = {};
 
-			travisczerw.applications = React.findDOMNode(this.refs.application).value;
-			travisczerw.referrals = React.findDOMNode(this.refs.referrals).value;
-			travisczerw.interviews = React.findDOMNode(this.refs.interviews).value;
-			travisczerw.technicalInterviews = React.findDOMNode(this.refs.techInterviews).value;
+			user.username = React.findDOMNode(this.refs.username).value;
+			user.applications = React.findDOMNode(this.refs.application).value;
+			user.referrals = React.findDOMNode(this.refs.referrals).value;
+			user.interviews = React.findDOMNode(this.refs.interviews).value;
+			user.technicalInterviews = React.findDOMNode(this.refs.techInterviews).value;
+			user.status = React.findDOMNode(this.refs.status).value;
 
-			user;
-
-			console.log(travisczerw);
-
-			var usersRef = ref.child("profiles");
-			user[React.findDOMNode(this.refs.username).value] = travisczerw;
-			usersRef.push(user);
-
-		    // React.findDOMNode(this.refs.location).value = '';
-		    // React.findDOMNode(this.refs.link).value = '';
+			var usersRef = ref.child("profiles/"+user.username);
+			//user[React.findDOMNode(this.refs.username).value] = travisczerw;
+			usersRef.update(user);
 
 			return;	
 		},
@@ -97,6 +92,11 @@
 							<input type="text" ref="techInterviews" />
 						</label>
 						<br></br>
+						<label>
+							Employement Status
+							<input type="text" ref="status" />
+						</label>
+						<br></br>
 						<input className ="button" type="submit" value="Submit" />
 					</form>
 				</div>
@@ -104,28 +104,72 @@
 		}
 	});
 
+	var IndividualProfile = React.createClass({
+	  render: function() {
+	    var createItem = function(profile, index) {
+	      return (
+	      	<section className="iron-yarder-profile">
+				<div className="profile-image"><i className="fa fa-user fa-3x"></i></div>
+				<table>
+					<tr>
+						<td> Name </td>
+						<td> { profile.username } </td>
+					</tr>
+					<tr>
+						<td> Applications </td>
+						<td> { profile.applications } </td>
+					</tr>
+					<tr>
+						<td> Referrals/Connections </td>
+						<td> { profile.referrals } </td>
+					</tr>
+					<tr>
+						<td> Interviews </td>
+						<td> { profile.interviews }</td>
+					</tr>
+					<tr>
+						<td> Technical Interviews </td>
+						<td> { profile.technicalInterviews }</td>
+					</tr>
+					<tr>
+						<td> Emplyoment Status </td>
+						<td> { profile.status }</td>
+					</tr>
+				</table>
+			</section>
+			)
+	    };
+	    return <ul>{ this.props.profiles.map(createItem) }</ul>;
+	  }
+	});
+
 	var ProfileComponent = React.createClass({
 		getInitialState: function() {
+			this.profiles = [];
    			return {profiles: []};
   		},
 		componentWillMount: function() {
 			this.firebaseRef = new Firebase("https://blistering-torch-743.firebaseio.com/profiles");
-			this.firebaseRef.on("child_added", function(snapshot) {
-			var profiles = (snapshot.val());
-			console.log(profiles);
-			this.setState({
-				profiles: this.profiles
-			});
+			this.firebaseRef.on("value", function(snapshot) {
+				this.profiles.push(snapshot.val())
+				this.setState({
+					profiles: this.profiles
+				});
 			}.bind(this));
 		},
 		componentWillUnmount: function() {
   			this.firebaseRef.off();
 		},
 		render: function() {
+			console.log(this.profiles);
+			var profiles = [];
+			for(var i in this.profiles[0]) {
+				console.log(i);
+				console.log(this.profiles[0][i]);
+				profiles.push(this.profiles[0][i]);
+			}
 			return (
-				<section className="iron-yarder-profile">
-					<div className="profile-image"> </div>
-				</section>
+				<IndividualProfile profiles={ profiles } />
 			)
 		}
 	});

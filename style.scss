@@ -8,6 +8,7 @@ body {
 	color: $black;
 	background-color: $white;
 	font-family: 'Roboto', sans-serif;
+	background-color: $primary-color;
 }
 
 .button { 
@@ -17,6 +18,11 @@ body {
 	border: none;
 	background-color: $black;
 	color: $white;
+}
+
+form {
+	width:50%;
+	margin:0 auto;
 }
 
 header {
@@ -60,15 +66,14 @@ h1 {
 }
 
 table {
+	font-size: 1.2rem;
 	margin-top: 1rem;
+	text-align:center;
+	background-color: $secondary-color;
 
 	td {
-		padding: 1rem;
+		padding: 0.5rem;
 		border: 1px solid $black;
-	}
-
-	tr:hover {
-		background-color: lightgrey;
 	}
 }
 
@@ -90,12 +95,19 @@ table {
 .iron-yarder-profile {
 	padding: 1.4rem;
 	border: 2px solid $black;
-	width: 15rem;
-	margin: 1rem 0 1rem 1rem;
+	width: 20rem;
+	height: 25rem;
+	margin: 1rem 1rem 1rem 0;
 	float: left;
+	background-color: $white;
+	border-radius: 0.5rem;
+
+	&:last-child {
+		margin-right: 0;
+	}
 
 	.profile-image {
-		background-color: lightblue;
+		background-color: $secondary-color;
 		margin: 0 auto;
 		width: 5rem;
 		height: 5rem;
@@ -106,7 +118,7 @@ table {
 			position: relative;
 			top: 20%;
 			left: 27%;
-			color: grey;
+			color: $black;
 		}
 	}
 }
