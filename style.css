@@ -57,6 +57,9 @@ table {
     padding: 0.5rem;
     border: 1px solid #333333; }
 
+.active-nav-tab {
+  background-color: #D6E68A; }
+
 .submit-bar {
   border-bottom: 2px solid #333333;
   padding: 1rem;
@@ -68,6 +71,16 @@ table {
     margin-top: 1rem;
     margin-right: 3rem;
     text-align: center; }
+
+.stats-bar table {
+  background-color: #F6F8EE;
+  width: 60%;
+  margin: 1rem auto; }
+.stats-bar td {
+  width: 12rem; }
+.stats-bar td:last-child {
+  width: 8rem;
+  text-align: center; }
 
 .iron-yarder-profile {
   padding: 1.4rem;

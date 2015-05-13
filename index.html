@@ -20,11 +20,24 @@
 
 	var NavComponent = React.createClass({ 
 		getInitialState: function() {
-        	return { showResults: false };
+        	return { 
+        		showSubmissionBar: false,
+        		showStatsBar: false
+        	};
     	},
-		onClick: function() {
-        	this.setState({ showResults: !this.state.showResults });
+		onClickSubmission: function() {
+
+        	this.setState({ 
+        		showSubmissionBar: !this.state.showSubmissionBar, 
+        		showStatsBar: false
+        	});
    	 	},	
+   	 	onClickStats: function() {
+   	 		this.setState({ 
+   	 			showStatsBar: !this.state.showStatsBar,
+   	 			showSubmissionBar: false
+   	 		});
+   	 	},
 		render: function() {
 			return (
 				<header>
@@ -32,11 +45,81 @@
 					<h2> Tracking Iron Yarders Quest For Jobs </h2>
 					<nav>
 						<a href="#"> Home </a>
-						<a href="#"> Job Search Stats </a>
-						<a className="submit-button" href="#" onClick={this.onClick}> Submit Information </a>
+						<a onClick={this.onClickStats} href="#"> Job Search Stats </a>
+						<a className="submit-button" href="#" onClick={this.onClickSubmission}> Submit Information </a>
 					</nav>
-					{ this.state.showResults ? <PostComponent /> : null }
+					{ this.state.showSubmissionBar ? <PostComponent /> : null }
+					{ this.state.showStatsBar ?  <StatsBarComponent /> : null }	
 				</header>
+			)
+		}
+	});
+
+	var StatsBarComponent = React.createClass({
+		render: function() {
+			this.firebaseRef = new Firebase("https://blistering-torch-743.firebaseio.com/profiles");
+			var statsObject = {
+					totalApps: 0,
+					totalRefs: 0,
+					totalInterviews: 0,
+					totalTechInterviews: 0,
+					avgAppToInterview: function() {
+						return Math.round((statsObject.totalApps+statsObject.totalRefs)/statsObject.totalInterviews)+' to 1';
+					},
+					avgRefToInterview: function() {
+						return Math.round(statsObject.totalInterviews/statsObject.totalRefs)+' to 1';
+					},
+					avgInterviewToTech: function() {
+						return Math.round(statsObject.totalInterviews/statsObject.totalTechInterviews)+' to 1';
+					}
+				}
+				
+				this.firebaseRef.orderByChild("applications").on("child_added", function(snapshot) {
+					statsObject.totalApps += parseInt(snapshot.val().applications);
+				});
+				this.firebaseRef.orderByChild("referrals").on("child_added", function(snapshot) {
+					statsObject.totalRefs += parseInt(snapshot.val().referrals);
+				});
+				this.firebaseRef.orderByChild("interviews").on("child_added", function(snapshot) {
+					statsObject.totalInterviews += parseInt(snapshot.val().interviews);
+				});
+				this.firebaseRef.orderByChild("technicalInterviews").on("child_added", function(snapshot) {
+					statsObject.totalTechInterviews += parseInt(snapshot.val().technicalInterviews);
+				});
+			return (
+				<div className ="submit-bar stats-bar">
+					<h1> Statistics </h1>
+					<table>
+						<tr>
+							<td> Total Applications Submitted </td>
+							<td> {statsObject.totalApps} </td>
+						</tr>
+						<tr>
+							<td> Total Referrals/Contacts Utilized</td>
+							<td> {statsObject.totalRefs}</td>
+						</tr>
+						<tr>
+							<td> Total Interviews Conducted</td>
+							<td> {statsObject.totalInterviews}</td>
+						</tr>
+						<tr>
+							<td> Total Technical Interviews Conducted </td>
+							<td> {statsObject.totalTechInterviews}</td>
+						</tr>
+						<tr>
+							<td> Average App To Interview Ratio </td>
+							<td> {statsObject.avgAppToInterview()}</td>
+						</tr>
+						<tr>
+							<td> Average Referrals To Interview Ratio </td>
+							<td> {statsObject.avgRefToInterview()}</td>
+						</tr>
+						<tr>
+							<td> Average Interview To Technical Interview Ratio </td>
+							<td> {statsObject.avgInterviewToTech()}</td>
+						</tr>
+					</table>
+				</div>
 			)
 		}
 	});
@@ -45,13 +128,19 @@
 		handleSubmit: function(e) {
 			e.preventDefault();
 			var user = {};
+			var radios = document.getElementsByName('status');
+			for (var i = 0, length = radios.length; i < length; i++) {
+			    if (radios[i].checked) {
+			    	user.status = radios[i].value;
+			        break;
+			    }
+			}
 
 			user.username = React.findDOMNode(this.refs.username).value;
 			user.applications = React.findDOMNode(this.refs.application).value;
 			user.referrals = React.findDOMNode(this.refs.referrals).value;
 			user.interviews = React.findDOMNode(this.refs.interviews).value;
 			user.technicalInterviews = React.findDOMNode(this.refs.techInterviews).value;
-			user.status = React.findDOMNode(this.refs.status).value;
 
 			var usersRef = ref.child("profiles/"+user.username);
 			usersRef.update(user);
@@ -64,33 +153,36 @@
 				<div className ="submit-bar">
 					<form onSubmit={this.handleSubmit}>
 						<label> 
-							Name 
+							Name:
 							<input type="text" placeholder="Sally Sue" ref="username" />
 						</label>
 						
 						<label> 
-							Applications
+							Applications:
 							<input type="text" placeholder="10" ref="application" />
 						</label>
 						
 						<label>
-							Referrals/Contacts
+							Referrals/Contacts:
 							<input type="text" placeholder="3" ref="referrals" />
 						</label>
 						
 						<label>
-							Interviews
+							Interviews:
 							<input type="text" placeholder="5" ref="interviews" />
 						</label>
 						
 						<label>
-							Technical Interviews/Assignments
+							Technical Interviews/Assignments:
 							<input type="text" placeholder="2" ref="techInterviews" />
 						</label>
 						
 						<label>
-							Employement Status
-							<input type="text" placeholder="Hired/Looking/Other" ref="status" />
+							Employment Status: 
+							<input type="radio" name="status" value="Looking" ref="status" /> Looking
+							<input type="radio" name="status" value="Freelance" ref="status" /> Freelance
+							<input type="radio" name="status" value="Employed" ref="status" /> Employed
+							<input type="radio" name="status" value="Other" ref="status" /> Other
 						</label>
 						
 						<input className ="button" type="submit" value="Submit" />
@@ -128,7 +220,7 @@
 						<td> { profile.technicalInterviews }</td>
 					</tr>
 					<tr>
-						<td> Emplyoment Status </td>
+						<td> Employment Status </td>
 						<td> { profile.status }</td>
 					</tr>
 				</table>
@@ -147,18 +239,37 @@
 		componentWillMount: function() {
 			this.firebaseRef = new Firebase("https://blistering-torch-743.firebaseio.com/profiles");
 			this.changeRef = new Firebase("https://blistering-torch-743.firebaseio.com");
-			// this.firebaseRef.on("child_changed", function(snapshot) {
-			// 	console.log('changed event occured');
-			// 	this.profiles.push(snapshot.val())
-			// 	this.setState({
-			// 		profiles: this.profiles
-			// 	});
-			//}.bind(this));
+			var statsObject = {
+				totalApps: 0,
+				totalRefs: 0,
+				totalInterviews: 0,
+				totalTechInterviews: 0,
+				avgAppToInterview: 0,
+				avgRefToInterview: 0,
+				avgInterviewToTech: 0
+			}
+			
+			this.firebaseRef.orderByChild("applications").on("child_added", function(snapshot) {
+				statsObject.totalApps += parseInt(snapshot.val().applications);
+			});
+			this.firebaseRef.orderByChild("referrals").on("child_added", function(snapshot) {
+				statsObject.totalApps += parseInt(snapshot.val().applications);
+			});
+			this.firebaseRef.orderByChild("interviews").on("child_added", function(snapshot) {
+				statsObject.totalApps += parseInt(snapshot.val().applications);
+			});
+			this.firebaseRef.orderByChild("technicalInterviews").on("child_added", function(snapshot) {
+				statsObject.totalApps += parseInt(snapshot.val().applications);
+			});
+
 			this.firebaseRef.on("value", function(snapshot) {
-				console.log('grabbed Firebase values');
-				this.profiles.push(snapshot.val())
+				var profiles = [];
+				var snapshot = snapshot.val();
+				for(var i in snapshot) {
+					profiles.push(snapshot[i]);
+				}
 				this.setState({
-					profiles: this.profiles
+					profiles: profiles
 				});
 			}.bind(this));
 		},
@@ -166,12 +277,10 @@
   			this.firebaseRef.off();
 		},
 		render: function() {
-			var profiles = [];
-			for(var i in this.profiles[0]) {
-				profiles.push(this.profiles[0][i]);
-			}
+			console.log('Rendering..');
+			
 			return (
-				<IndividualProfile profiles={ profiles } />
+				<IndividualProfile profiles={ this.state.profiles } />
 			)
 		}
 	});

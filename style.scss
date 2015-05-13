@@ -84,6 +84,10 @@ table {
 	}
 }
 
+.active-nav-tab {
+	background-color: $secondary-color;
+}
+
 .submit-bar {
 	border-bottom: 2px solid $black;
 	padding: 1rem;
@@ -97,6 +101,23 @@ table {
 	.button {
 		margin-top: 1rem;
 		margin-right: 3rem;
+		text-align: center;
+	}
+}
+
+.stats-bar {
+	table {
+		background-color: $white;
+		width: 60%;
+		margin: 1rem auto;
+	}
+
+	td {
+		width: 12rem;
+	}
+
+	td:last-child {
+		width: 8rem;
 		text-align: center;
 	}
 }
